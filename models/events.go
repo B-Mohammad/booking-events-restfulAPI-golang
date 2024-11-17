@@ -4,11 +4,11 @@ import "time"
 
 type Event struct {
 	ID          int
-	Name        string
-	description string
-	Location    string
+	Name        string `binding:"required"`
+	Description string `binding:"required"`
+	Location    string `binding:"required"`
 	UserID      int
-	DateTime    time.Time
+	DateTime    time.Time `binding:"required"`
 }
 
 var allEvents []Event = []Event{}
