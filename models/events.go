@@ -90,3 +90,17 @@ func (e Event) UpdateEvent() error {
 
 	return nil
 }
+
+func (e Event) DeleteEvent() error {
+	deleteQuery := "DELETE FROM events WHERE id = ?"
+	stmt, err := db.DB.Prepare(deleteQuery)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(e.ID)
+	return err
+}

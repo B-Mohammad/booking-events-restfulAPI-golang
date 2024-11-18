@@ -52,7 +52,7 @@ func postEventsHandler(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "event created!", "event": event})
 }
 
-func UpdateEvent(context *gin.Context) {
+func updateEvent(context *gin.Context) {
 	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse event ID!"})
@@ -80,4 +80,26 @@ func UpdateEvent(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": "event successfully updated!"})
 
+}
+
+func deleteEventHandler(context *gin.Context) {
+	eId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "could not parse event ID!"})
+		return
+	}
+
+	event, err := models.GetEvent(eId)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "event not found!"})
+		return
+	}
+
+	err = event.DeleteEvent()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "could not Delete Events!"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "event successfully deleted!"})
 }
