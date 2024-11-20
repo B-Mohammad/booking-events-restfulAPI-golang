@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"bashiri.ir/booking_events_restfulAPI_golang/models"
+	"bashiri.ir/booking_events_restfulAPI_golang/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,7 +42,12 @@ func loginHandler(context *gin.Context) {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		return
 	}
+	token, err := utils.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "user could not authenticate!"})
+		return
+	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "you logged in!"})
+	context.JSON(http.StatusOK, gin.H{"message": "you logged in!", "token": token})
 
 }

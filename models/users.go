@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	
 
 	"bashiri.ir/booking_events_restfulAPI_golang/db"
 	"bashiri.ir/booking_events_restfulAPI_golang/utils"
@@ -13,7 +14,7 @@ type User struct {
 	Password string `binding:"required"`
 }
 
-func (u User) Save() error {
+func (u *User) Save() error {
 	saveUQuery := `INSERT INTO users(email, password) VALUES(?, ?)`
 	stmt, err := db.DB.Prepare(saveUQuery)
 
@@ -33,18 +34,17 @@ func (u User) Save() error {
 		return err
 	}
 	id, err := result.LastInsertId()
-
 	u.ID = id
 
 	return err
 }
 
-func (u User) CheckCredential() error {
-	selectQ := "SELECT password FROM users WHERE email = ?"
+func (u *User) CheckCredential() error {
+	selectQ := "SELECT id,password FROM users WHERE email = ?"
 	row := db.DB.QueryRow(selectQ, u.Email)
 
 	var hPass string
-	err := row.Scan(&hPass)
+	err := row.Scan(&u.ID, &hPass)
 	if err != nil {
 		return err
 	}

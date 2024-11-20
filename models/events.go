@@ -11,11 +11,11 @@ type Event struct {
 	Name        string `binding:"required"`
 	Description string `binding:"required"`
 	Location    string `binding:"required"`
-	UserID      int
+	UserID      int64
 	DateTime    time.Time `binding:"required"`
 }
 
-func (e Event) Save() error {
+func (e *Event) Save() error {
 	insertQuery := `
 	INSERT INTO events (name, description, location, dateTime, userId) 
 	Values (?, ?, ?, ?, ?)`
@@ -102,5 +102,35 @@ func (e Event) DeleteEvent() error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(e.ID)
+	return err
+}
+
+func (e Event) RegisterToEvent(userId int64) error {
+	insertQuery := `INSERT INTO erg(userId, eventId)
+	VALUES(?, ?)`
+
+	stmt, err := db.DB.Prepare(insertQuery)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userId, e.ID)
+	return err
+}
+
+func (e Event) DeleteRegister(userId int64) error {
+	insertQuery := `DELETE FROM erg
+	WHERE userId = ?  AND eventId = ?`
+
+	stmt, err := db.DB.Prepare(insertQuery)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(userId, e.ID)
 	return err
 }

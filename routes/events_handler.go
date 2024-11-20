@@ -34,6 +34,8 @@ func getSingleEvent(context *gin.Context) {
 }
 
 func postEventsHandler(context *gin.Context) {
+
+	userId := context.GetInt64("userId")
 	var event models.Event
 	err := context.ShouldBindJSON(&event)
 	if err != nil {
@@ -41,8 +43,7 @@ func postEventsHandler(context *gin.Context) {
 		return
 	}
 
-	event.ID = 99 ///TODO
-	event.UserID = 1
+	event.UserID = userId
 	err = event.Save()
 
 	if err != nil {
@@ -59,7 +60,7 @@ func updateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEvent(eventId)
+	event, err := models.GetEvent(eventId)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "event not found!"})
 		return
@@ -71,6 +72,13 @@ func updateEvent(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request body!"})
 		return
 	}
+
+	userId := context.GetInt64("userId")
+	if event.UserID != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "You are not unauthorized!"})
+		return
+	}
+
 	uEvent.ID = eventId
 	err = uEvent.UpdateEvent()
 	if err != nil {
@@ -93,6 +101,12 @@ func deleteEventHandler(context *gin.Context) {
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "event not found!"})
+		return
+	}
+
+	userId := context.GetInt64("userId")
+	if event.UserID != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "You are not unauthorized!"})
 		return
 	}
 
